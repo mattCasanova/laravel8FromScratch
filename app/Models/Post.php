@@ -1,27 +1,48 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\File;
+use Spatie\YamlFrontMatter\YamlFrontMatter;
 
 class Post
 {
+    public function __construct(public $title, public $slug, public $excerpt, public $date, public $body)
+    {
+    }
+
     public static function all()
     {
-        $files = File::files(resource_path('posts/'));
+        return cache()->rememberForever('posts.all', function () {
+            return collect(File::files(resource_path('posts')))
+            ->map(function ($file) {
+                $document = YamlFrontMatter::parseFile($file);
 
-        return array_map(fn ($file) => $file->getContents(), $files);
+                return new Post(
+                    $document->title,
+                    $document->slug,
+                    $document->excerpt,
+                    $document->date,
+                    $document->body()
+                );
+            })
+            ->sortByDesc('date');
+        });
     }
 
     public static function find(string $slug)
     {
-        $path = resource_path("/posts/{$slug}.html");
+        return static::all()->firstWhere('slug', $slug);
+    }
 
-        if (!file_exists($path)) {
+    public static function findOrFail(string $slug)
+    {
+        $post = static::find($slug);
+
+        if (!$post) {
             throw new ModelNotFoundException();
         }
 
-        return cache()->remember("posts.{$slug}", 1200, fn () => file_get_contents($path));
+        return $post;
     }
 }

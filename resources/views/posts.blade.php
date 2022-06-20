@@ -1,13 +1,21 @@
-<!DOCTYPE html>
 
-<title>My Blog</title>
-<link rel="stylesheet" href="/app.css">
+<x-layout>
+    <x-slot name="header">
+        Main
+    </x-slot>
+    <x-slot name="content">
+    @foreach ($posts as $post)
+        <article>
+            <h1>
+                <a href="/post/{{$post->slug}}">
+                    {{$post->title}}
+                </a>
+            </h1>
 
-<body>
-    <?php foreach ($posts as $post) : ?>
-    <article>
-        <?= $post ?>
-    </article>
-    <?php endforeach; ?>
-
-</body>
+            <div>
+                {{$post->excerpt}}
+            </div>
+        </article>
+    @endforeach
+    </x-slot>
+</x-layout>
