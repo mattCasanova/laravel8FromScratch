@@ -1,4 +1,6 @@
 <x-layout>
+    {{--
+
     <x-slot name="header">
         Read This!
     </x-slot>
@@ -19,4 +21,5 @@
         </article>
         <a href="/">Go Back</a>
     </x-slot>
+    --}}
 </x-layout>
