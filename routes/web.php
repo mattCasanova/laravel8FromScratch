@@ -18,9 +18,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $posts = Post::latest()->with('category', 'author');
+    $search = request('search');
 
-    if (request('search')) {
-        $posts->where('title', 'like', '%' . request('search') . '%');
+    if ($search) {
+        $posts
+        ->where('title', 'like', '%' . $search . '%')
+        ->orWhere('body', 'like', '%' . $search . '%');
     }
 
     return view('posts', [
