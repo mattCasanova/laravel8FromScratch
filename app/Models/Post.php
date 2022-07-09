@@ -13,7 +13,22 @@ class Post extends Model
     //protected $fillable = ['title', 'excerpt', 'body'];
 
     // Always eager load whenever we need a Post
-    //protected $with = ['category', 'author'];
+    protected $with = ['category', 'author'];
+
+    // Post::newQuery()->filter()
+    public function scopeFilter($query, array $filters)
+    {
+        $search = $filters['search'];
+
+        // Laracasts showed using 'condition ?? false 'but I don't think it is needed.
+        // Null seems to be considered false
+        $query->when(
+            $filters['search'],
+            fn ($query, $search) => $query
+                ->where('title', 'like', '%' . $search . '%')
+                ->orWhere('body', 'like', '%' . $search . '%')
+        );
+    }
 
     public function category()
     {
