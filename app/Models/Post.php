@@ -18,15 +18,16 @@ class Post extends Model
     // Post::newQuery()->filter()
     public function scopeFilter($query, array $filters)
     {
-        $search = $filters['search'];
-
-        // Laracasts showed using 'condition ?? false 'but I don't think it is needed.
-        // Null seems to be considered false
         $query->when(
-            $filters['search'],
+            $filters['search'] ?? false,
             fn ($query, $search) => $query
                 ->where('title', 'like', '%' . $search . '%')
                 ->orWhere('body', 'like', '%' . $search . '%')
+        );
+
+        $query->when(
+            $filters['category'] ?? false,
+            fn ($query, $category) => $query->whereHas('category', fn ($query) => $query->where('slug', $category))
         );
     }
 
